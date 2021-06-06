@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html ng-app="ccipher">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<style>
+	body{font-size:12pt;}
+	h1,h4,label{font-weight:bold;}
+	label,textarea{display:block;width:100%;padding:5px;}
+</style>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<body ng-controller="ccCtrl">
+
+<header class="w3-container">
+	<h1>Caesar Cipher++</h1>
+    <p>Here is a simple text encryption/decryption mechanism (for printable ascii characters [#32-126]) that presumably is uncrackable without accurately guessing the password used. Without the correct password any 'decryption' could be accurate thereby defying certainty that it was accurately decrypted. I.e., it would be a waste of time and computing power to brute force it, as there would be infinite readable results.</p>
+    <h4>Enter text to be encrypted/decrypted on the left, and 'password' text on the right and press [shift] to see the result.</h4>
+    <p>NOTE: a single space (ASCII: &amp;#32;) as the password causes the page to hang. A space as the initial character of a longer password, or a space in a password, both work fine. Can't figure out why this happens.</p>
+</header>
+<section class="main">
+	<article class="w3-row-padding">
+        <div class="w3-half">
+            <label for="encrypt">Enter text to encrypt/decrypt:</label>
+            <textarea ng-model="encrypt" id="encrypt" name="encrypt" rows="7"></textarea>
+        </div>
+        <div class="w3-half">
+            <label for="shiftBy">Enter (any length) 'password' text:<br>(will be repeated/cropped as needed)</label>
+            <textarea ng-model="shiftBy" id="shiftBy" name="shiftBy" rows="6"></textarea>
+        </div>
+    </article>
+    <article class="w3-container">
+    	<div class="w3-center w3-margin-top"><button class="w3-button w3-black" ng-click="shift()">shift</button></div>
+    	<h3>Shifted text:</h3>
+    	<p style="word-break:break-all;">{{result}}</p>
+    </article>
+</section>
+
+<script>
+var app = angular.module("ccipher", []);
+
+app.service('cshift', function(){
+	this.shift = function(input, shiftby){
+		let asciiKeys = [], shiftKeys = [], resultKeys = [];
+		
+		let newShiftby = shiftby;
+		while(input.length > newShiftby.length) {
+			newShiftby = newShiftby.concat(shiftby);
+		}
+		
+		let printableAscii = function(x){
+			let y=x;
+			if (x > 126)
+				y = x - 95;
+			else if (x < 32)
+				y = x + 95;
+			
+			return y;
+		}
+		
+		for (let i=0; i<input.length; i++){
+			let inputKey = input[i].charCodeAt(0);
+			let newShiftbyKey = newShiftby[i].charCodeAt(0);
+			//let resultKey = 2*newShiftbyKey - inputKey;
+						
+			//asciiKeys.push(inputKey);
+			//shiftKeys.push(newShiftbyKey);
+			resultKeys.push( printableAscii(2*newShiftbyKey-inputKey) );
+		}
+		
+		let result = String.fromCharCode(...resultKeys);
+		
+		//console.log(asciiKeys);
+		//console.log(shiftKeys);
+		//console.log(resultKeys);
+		
+		return result;
+	}
+});
+
+app.controller("ccCtrl", function($scope, cshift) {
+	//$scope.encrypt = " !\"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_\`abcdefghijklmnopqrstuvwxyz{|}\~";
+	
+	$scope.encrypt = "5]rg\"yeT{VzguooI Cs\",l T`";
+	$scope.shiftBy = "password";
+	$scope.result  = cshift.shift($scope.encrypt, $scope.shiftBy);
+	
+	$scope.shift = function(){
+		$scope.result  = cshift.shift($scope.encrypt, $scope.shiftBy);		
+	}
+});
+</script>
+</body>
+</html>
